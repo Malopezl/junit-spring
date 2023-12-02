@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 
+import gt.com.archteam.junitapp.exceptions.DineroInsuficienteException;
+
 class CuentaTest {
 
     @Test
@@ -47,6 +49,15 @@ class CuentaTest {
         assertNotNull(cuenta.getSaldo());
         assertEquals(110, cuenta.getSaldo().intValue());
         assertEquals("110.42", cuenta.getSaldo().toPlainString());
+    }
+
+    @Test
+    void testDineroInsuficienteException() {
+        Cuenta cuenta = new Cuenta("Andres", new BigDecimal("100.42"));
+        Exception exception = assertThrows(DineroInsuficienteException.class, () -> {
+            cuenta.debito(new BigDecimal("150"));
+        });
+        assertEquals("Dinero insuficiente", exception.getMessage());
     }
 
 }
