@@ -21,6 +21,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.DisabledOnJre;
@@ -66,54 +69,81 @@ class CuentaTest {
         System.out.println("Finalizando el test");
     }
 
-    @Test
-    @DisplayName("probando nombre de la cuenta corriente")
-    void testNombreCuenta() {
-        /*
-         * Para mostrar un mensaje en caso de error se puede utilizar esta forma pero no
-         * es la recomendada ya que, al dejar el mensaje directo en caso de que no haya
-         * error JUnit igual genera el espacio de memoria para este mensaje.
-         * (La nueva forma solo es para JUnit5)
-         * 
-         * EJ:
-         * assertNotNull(cuenta.getPersona(), "La cuenta no puede ser nula");
-         */
-        assertNotNull(cuenta.getPersona(), () -> "La cuenta no puede ser nula");
-        assertEquals("Andres", cuenta.getPersona(), () -> "El nombre de la cuenta no es el que se esperaba");
+    /**
+     * CuentaTestNombreSaldo
+     */
+    @Nested
+    @DisplayName("probando atributos de la cuenta corriente")
+    class CuentaTestNombreSaldo {
+
+        @Test
+        @DisplayName("probando nombre")
+        void testNombreCuenta() {
+            /*
+             * Para mostrar un mensaje en caso de error se puede utilizar esta forma pero no
+             * es la recomendada ya que, al dejar el mensaje directo en caso de que no haya
+             * error JUnit igual genera el espacio de memoria para este mensaje.
+             * (La nueva forma solo es para JUnit5)
+             * 
+             * EJ:
+             * assertNotNull(cuenta.getPersona(), "La cuenta no puede ser nula");
+             */
+            assertNotNull(cuenta.getPersona(), () -> "La cuenta no puede ser nula");
+            assertEquals("Andres", cuenta.getPersona(), () -> "El nombre de la cuenta no es el que se esperaba");
+        }
+
+        @Test
+        @DisplayName("probando el saldo, que no sea nulo, mayor que cero, valor esperado")
+        void testSaldoCuenta() {
+            assertEquals(100.42, cuenta.getSaldo().doubleValue());
+            assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
+            assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
+        }
+
+        @Test
+        @DisplayName("probando referencias que sean iguales")
+        void testReferenciaCuenta() {
+            cuenta = new Cuenta("John Doe", new BigDecimal("9800.9997"));
+            Cuenta cuenta2 = new Cuenta("John Doe", new BigDecimal("9800.9997"));
+            // assertNotEquals(cuenta2, cuenta1);
+            assertEquals(cuenta2, cuenta);
+        }
     }
 
-    @Test
-    @DisplayName("probando el saldo de la cuenta corriente, que no sea nulo, mayor que cero, valor esperado")
-    void testSaldoCuenta() {
-        assertEquals(100.42, cuenta.getSaldo().doubleValue());
-        assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
-        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
-    }
+    /**
+     * CuentaOperacionesTest
+     */
+    @Nested
+    class CuentaOperacionesTest {
 
-    @Test
-    @DisplayName("probando referencias que sean iguales")
-    void testReferenciaCuenta() {
-        cuenta = new Cuenta("John Doe", new BigDecimal("9800.9997"));
-        Cuenta cuenta2 = new Cuenta("John Doe", new BigDecimal("9800.9997"));
-        // assertNotEquals(cuenta2, cuenta1);
-        assertEquals(cuenta2, cuenta);
-    }
+        @Test
+        @DisplayName("probando debitos sobre la cuenta corriente")
+        void testDebitoCuenta() {
+            cuenta.debito(new BigDecimal("10"));
+            assertNotNull(cuenta.getSaldo());
+            assertEquals(90, cuenta.getSaldo().intValue());
+            assertEquals("90.42", cuenta.getSaldo().toPlainString());
+        }
 
-    @Test
-    @DisplayName("probando debitos sobre la cuenta corriente")
-    void testDebitoCuenta() {
-        cuenta.debito(new BigDecimal("10"));
-        assertNotNull(cuenta.getSaldo());
-        assertEquals(90, cuenta.getSaldo().intValue());
-        assertEquals("90.42", cuenta.getSaldo().toPlainString());
-    }
+        @Test
+        void testCreditoCuenta() {
+            cuenta.credito(new BigDecimal("10"));
+            assertNotNull(cuenta.getSaldo());
+            assertEquals(110, cuenta.getSaldo().intValue());
+            assertEquals("110.42", cuenta.getSaldo().toPlainString());
+        }
 
-    @Test
-    void testCreditoCuenta() {
-        cuenta.credito(new BigDecimal("10"));
-        assertNotNull(cuenta.getSaldo());
-        assertEquals(110, cuenta.getSaldo().intValue());
-        assertEquals("110.42", cuenta.getSaldo().toPlainString());
+        @Test
+        void testTransferirDineroCuentas() {
+            Cuenta cuenta1 = new Cuenta("Jhon Doe", new BigDecimal("2500"));
+            Cuenta cuenta2 = new Cuenta("Andres", new BigDecimal("1500.99"));
+
+            Banco banco = new Banco();
+            banco.setNombre("Banco del estado");
+            banco.transferir(cuenta2, cuenta1, new BigDecimal("500"));
+            assertEquals("1000.99", cuenta2.getSaldo().toPlainString());
+            assertEquals("3000", cuenta1.getSaldo().toPlainString());
+        }
     }
 
     @Test
@@ -121,18 +151,6 @@ class CuentaTest {
         Exception exception = assertThrows(DineroInsuficienteException.class,
                 () -> cuenta.debito(new BigDecimal("150")));
         assertEquals("Dinero insuficiente", exception.getMessage());
-    }
-
-    @Test
-    void testTransferirDineroCuentas() {
-        Cuenta cuenta1 = new Cuenta("Jhon Doe", new BigDecimal("2500"));
-        Cuenta cuenta2 = new Cuenta("Andres", new BigDecimal("1500.99"));
-
-        Banco banco = new Banco();
-        banco.setNombre("Banco del estado");
-        banco.transferir(cuenta2, cuenta1, new BigDecimal("500"));
-        assertEquals("1000.99", cuenta2.getSaldo().toPlainString());
-        assertEquals("3000", cuenta1.getSaldo().toPlainString());
     }
 
     @Test
@@ -165,82 +183,110 @@ class CuentaTest {
                         () -> "La cuenta no existe en el banco"));
     }
 
-    @Test
-    @EnabledOnOs(OS.WINDOWS)
-    void testSoloWindows() {
+    /**
+     * SistemaOperativoTest
+     */
+    @Nested
+    class SistemaOperativoTest {
 
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void testSoloWindows() {
+
+        }
+
+        @Test
+        @EnabledOnOs({ OS.LINUX, OS.MAC })
+        void testSoloLinuxMac() {
+
+        }
+
+        @Test
+        @DisabledOnOs(OS.WINDOWS)
+        void testNoWindows() {
+
+        }
     }
 
-    @Test
-    @EnabledOnOs({ OS.LINUX, OS.MAC })
-    void testSoloLinuxMac() {
+    /**
+     * JavaVersionTest
+     */
+    @Nested
+    class JavaVersionTest {
 
+        @Test
+        @EnabledOnJre(JRE.JAVA_8)
+        void testSoloJdk8() {
+
+        }
+
+        @Test
+        @DisabledOnJre(JRE.JAVA_17)
+        void testNoJDK17() {
+
+        }
     }
 
-    @Test
-    @DisabledOnOs(OS.WINDOWS)
-    void testNoWindows() {
+    /**
+     * SistemPropertiesTest
+     */
+    @Nested
+    class SistemPropertiesTest {
 
+        @Test
+        void imprimirSystemProperties() {
+            Properties properties = System.getProperties();
+            properties.forEach((k, v) -> System.out.println(k + ": " + v));
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "java.version", matches = ".*17.*")
+        void testJavaVersion() {
+
+        }
+
+        @Test
+        @DisabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
+        void testSolo64() {
+
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "user.name", matches = "mlopezl")
+        void testUsername() {
+
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "ENV", matches = "dev")
+        void testDev() {
+
+        }
     }
 
-    @Test
-    @EnabledOnJre(JRE.JAVA_8)
-    void testSoloJdk8() {
+    /**
+     * VariableAmbienteTest
+     */
+    @Nested
+    class VariableAmbienteTest {
 
-    }
+        @Test
+        void imprimirVariablesAmbiente() {
+            Map<String, String> getenv = System.getenv();
+            getenv.forEach((k, v) -> System.out.println(k + " = " + v));
+        }
 
-    @Test
-    @DisabledOnJre(JRE.JAVA_17)
-    void testNoJDK17() {
+        @Test
+        @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = "/somedir")
+        void testHome() {
 
-    }
+        }
 
-    @Test
-    void imprimirSystemProperties() {
-        Properties properties = System.getProperties();
-        properties.forEach((k, v) -> System.out.println(k + ": " + v));
-    }
+        @Test
+        @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "dev")
+        void testEnv() {
 
-    @Test
-    @EnabledIfSystemProperty(named = "java.version", matches = ".*17.*")
-    void testJavaVersion() {
-
-    }
-
-    @Test
-    @DisabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
-    void testSolo64() {
-
-    }
-
-    @Test
-    @EnabledIfSystemProperty(named = "user.name", matches = "mlopezl")
-    void testUsername() {
-
-    }
-
-    @Test
-    @EnabledIfSystemProperty(named = "ENV", matches = "dev")
-    void testDev() {
-
-    }
-
-    @Test
-    void imprimirVariablesAmbiente() {
-        Map<String, String> getenv = System.getenv();
-        getenv.forEach((k, v) -> System.out.println(k + " = " + v));
-    }
-
-    @Test
-    @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = "/somedir")
-    void testHome() {
-
-    }
-
-    @Test
-    @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "dev")
-    void testEnv() {
-
+        }
     }
 
     @Test
@@ -255,15 +301,27 @@ class CuentaTest {
     }
 
     @Test
-    @DisplayName("test saldo cuenta dev")
+    @DisplayName("test saldo cuenta dev 2")
     void testSaldoCuentaDev2() {
         boolean esDev = "dev".equals(System.getProperty("ENV"));
         assumingThat(esDev, () -> {
             assertNotNull(cuenta.getSaldo());
             assertEquals(100.42, cuenta.getSaldo().doubleValue());
-            assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
-            assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
         });
+        assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
+        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
+    }
+
+    @DisplayName("probando Debito Cuenta Repetir")
+    @RepeatedTest(value = 5, name = "{displayName} - repeticion numero: {currentRepetition} de {totalRepetitions}")
+    void testDebitoCuentaRepetir(RepetitionInfo info) {
+        if (info.getCurrentRepetition() == 3) {
+            System.out.println("repeticion " + info.getCurrentRepetition());
+        }
+        cuenta.debito(new BigDecimal("10"));
+        assertNotNull(cuenta.getSaldo());
+        assertEquals(90, cuenta.getSaldo().intValue());
+        assertEquals("90.42", cuenta.getSaldo().toPlainString());
     }
 
 }
