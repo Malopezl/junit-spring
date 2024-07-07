@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import java.math.BigDecimal;
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.DisabledOnJre;
@@ -80,6 +80,7 @@ class CuentaTest {
      * CuentaTestNombreSaldo
      */
     @Nested
+    @Tag("cuenta")
     @DisplayName("probando atributos de la cuenta corriente")
     class CuentaTestNombreSaldo {
 
@@ -124,6 +125,7 @@ class CuentaTest {
     class CuentaOperacionesTest {
 
         @Test
+        @Tag("cuenta")
         @DisplayName("probando debitos sobre la cuenta corriente")
         void testDebitoCuenta() {
             cuenta.debito(new BigDecimal("10"));
@@ -133,6 +135,7 @@ class CuentaTest {
         }
 
         @Test
+        @Tag("cuenta")
         void testCreditoCuenta() {
             cuenta.credito(new BigDecimal("10"));
             assertNotNull(cuenta.getSaldo());
@@ -141,6 +144,8 @@ class CuentaTest {
         }
 
         @Test
+        @Tag("cuenta")
+        @Tag("banco")
         void testTransferirDineroCuentas() {
             Cuenta cuenta1 = new Cuenta("Jhon Doe", new BigDecimal("2500"));
             Cuenta cuenta2 = new Cuenta("Andres", new BigDecimal("1500.99"));
@@ -154,6 +159,8 @@ class CuentaTest {
     }
 
     @Test
+    @Tag("cuenta")
+    @Tag("error")
     void testDineroInsuficienteException() {
         Exception exception = assertThrows(DineroInsuficienteException.class,
                 () -> cuenta.debito(new BigDecimal("150")));
@@ -161,6 +168,8 @@ class CuentaTest {
     }
 
     @Test
+    @Tag("cuenta")
+    @Tag("banco")
     @Disabled("probando anotacion para omitir tests")
     @DisplayName("probando relaciones entre las cuentas y el banco")
     void testRelacionBancoCuentas() {
@@ -337,6 +346,7 @@ class CuentaTest {
      * 
      */
     @Nested
+    @Tag("param")
     class PruebasParametrizadasTest {
         @ParameterizedTest(name = "numero {index} ejecutando con valor {0} - {argumentsWithNames}")
         @ValueSource(strings = { "100", "200", "300", "500", "700", "1000" })
@@ -375,13 +385,15 @@ class CuentaTest {
             assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
         }
 
-        @ParameterizedTest(name = "numero {index} ejecutando con valor {0} - {argumentsWithNames}")
-        @MethodSource("montoList")
-        void testDebitoCuentaMethodSource(String monto) {
-            cuenta.debito(new BigDecimal(monto));
-            assertNotNull(cuenta.getSaldo());
-            assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
-        }
+    }
+
+    @Tag("param")
+    @ParameterizedTest(name = "numero {index} ejecutando con valor {0} - {argumentsWithNames}")
+    @MethodSource("montoList")
+    void testDebitoCuentaMethodSource(String monto) {
+        cuenta.debito(new BigDecimal(monto));
+        assertNotNull(cuenta.getSaldo());
+        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
     }
 
     static List<String> montoList() {
