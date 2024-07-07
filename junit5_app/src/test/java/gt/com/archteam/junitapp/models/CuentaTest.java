@@ -27,6 +27,8 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.DisabledOnJre;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -54,11 +56,18 @@ import gt.com.archteam.junitapp.exceptions.DineroInsuficienteException;
 class CuentaTest {
     private Cuenta cuenta;
 
+    private TestInfo testInfo;
+    private TestReporter testReporter;
+
     @BeforeEach
-    void initMetodoTest() {
+    void initMetodoTest(TestInfo testInfo, TestReporter testReporter) {
         // process.env.ENVIRONMENT = "dev";
         this.cuenta = new Cuenta("Andres", new BigDecimal("1000.12345"));
+        this.testInfo = testInfo;
+        this.testReporter = testReporter;
         System.out.println("iniciando el metodo.");
+        testReporter.publishEntry("Ejecutando: " + testInfo.getDisplayName() + " " + testInfo.getTestMethod().get().getName()
+                + " con las etiquetas: " + testInfo.getTags());
     }
 
     @AfterEach
@@ -87,6 +96,10 @@ class CuentaTest {
         @Test
         @DisplayName("probando nombre")
         void testNombreCuenta() {
+            testReporter.publishEntry(testInfo.getTags().toString());
+            if (testInfo.getTags().contains("cuenta")) {
+                testReporter.publishEntry("hacer algo con la etiqueta cuenta");
+            }
             /*
              * Para mostrar un mensaje en caso de error se puede utilizar esta forma pero no
              * es la recomendada ya que, al dejar el mensaje directo en caso de que no haya
