@@ -5,16 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +32,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestReporter;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.DisabledOnJre;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -411,6 +415,29 @@ class CuentaTest {
 
     static List<String> montoList() {
         return Arrays.asList("100", "200", "300", "500", "700", "1000.12345");
+    }
+
+    @Nested
+    @Tag("timeout")
+    class EjemploTimeoutTest {
+        @Test
+        @Timeout(1)
+        void pruebaTimeout() throws InterruptedException {
+            TimeUnit.MILLISECONDS.sleep(100);
+        }
+    
+        @Test
+        @Timeout(value = 500, unit = TimeUnit.MILLISECONDS)
+        void pruebaTimeout2() throws InterruptedException {
+            TimeUnit.MILLISECONDS.sleep(450);
+        }
+
+        @Test
+        void testTimeoutAssertions() {
+            assertTimeout(Duration.ofSeconds(1), () -> {
+                TimeUnit.MILLISECONDS.sleep(900);
+            });
+        }
     }
 
 }
