@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -132,5 +134,18 @@ class ExamenServiceImplTest {
 
         verify(repository).guardar(any(Examen.class));
         verify(preguntaRepository).guardarVarias(anyList());
+    }
+
+    @Test
+    void testManejoException() {
+        when(repository.findAll()).thenReturn(Datos.EXAMENES_ID_NULL);
+        when(preguntaRepository.findPreguntasPorExamenId(isNull())).thenThrow(IllegalArgumentException.class);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            service.findExamenPorNombreConPreguntas("Matematicas");
+        });
+        assertEquals(IllegalArgumentException.class, exception.getClass());
+
+        verify(repository).findAll();
+        verify(preguntaRepository).findPreguntasPorExamenId(isNull());
     }
 }
