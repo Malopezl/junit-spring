@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,24 +12,35 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import gt.com.archteam.mockitoapp.models.Examen;
 import gt.com.archteam.mockitoapp.repositories.ExamenRepository;
 import gt.com.archteam.mockitoapp.repositories.PreguntaRepository;
 
+/* FORMA 2: usando esta anotacion */
+@ExtendWith(MockitoExtension.class)
 class ExamenServiceImplTest {
+    @Mock
     PreguntaRepository preguntaRepository;
+    @Mock
     ExamenRepository repository;
-    ExamenService service;
+    
+    /* No puede ser la interfaz, por eso se utiliza la clase */
+    @InjectMocks
+    ExamenServiceImpl service;
 
-    @BeforeEach
-    void setUp() {
-        preguntaRepository = mock(PreguntaRepository.class);
-        repository = mock(ExamenRepository.class);
-        service = new ExamenServiceImpl(repository, preguntaRepository);
-    }
+    /* Se necesita habilitar el uso de las anotaciones para esta clase 
+     * FORMA 1: agregando esta linea en el BeforeEach
+    */
+    // @BeforeEach
+    // void setUp() {
+    //     MockitoAnnotations.openMocks(this);
+    // }
 
     @Test
     void testFindExamenPorNombre() {
