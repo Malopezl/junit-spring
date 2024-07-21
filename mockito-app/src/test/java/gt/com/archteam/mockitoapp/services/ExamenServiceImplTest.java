@@ -19,7 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import gt.com.archteam.mockitoapp.models.Examen;
 import gt.com.archteam.mockitoapp.repositories.ExamenRepository;
@@ -32,17 +34,18 @@ class ExamenServiceImplTest {
     PreguntaRepository preguntaRepository;
     @Mock
     ExamenRepository repository;
-    
+
     /* No puede ser la interfaz, por eso se utiliza la clase */
     @InjectMocks
     ExamenServiceImpl service;
 
-    /* Se necesita habilitar el uso de las anotaciones para esta clase 
+    /*
+     * Se necesita habilitar el uso de las anotaciones para esta clase
      * FORMA 1: agregando esta linea en el BeforeEach
-    */
+     */
     // @BeforeEach
     // void setUp() {
-    //     MockitoAnnotations.openMocks(this);
+    // MockitoAnnotations.openMocks(this);
     // }
 
     @Test
@@ -87,9 +90,14 @@ class ExamenServiceImplTest {
 
     @Test
     void testNoExisteExamenVerify() {
+        //given
         when(repository.findAll()).thenReturn(Collections.emptyList());
         when(preguntaRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        
+        //when
         var examen = service.findExamenPorNombreConPreguntas("Matematicas");
+        
+        //then
         assertNull(examen);
         verify(repository).findAll();
         verify(preguntaRepository).findPreguntasPorExamenId(anyLong());
@@ -97,11 +105,27 @@ class ExamenServiceImplTest {
 
     @Test
     void testGuardarExamen() {
+        // GIVEN (precondiciones de prueba)
         Examen newExamen = Datos.EXAMEN;
         newExamen.setPreguntas(Datos.PREGUNTAS);
 
-        when(repository.guardar(any(Examen.class))).thenReturn(Datos.EXAMEN);
+        when(repository.guardar(any(Examen.class))).then(new Answer<Examen>() {
+
+            Long secuencia = 8L;
+
+            @Override
+            public Examen answer(InvocationOnMock invocation) throws Throwable {
+                Examen examen = invocation.getArgument(0);
+                examen.setId(secuencia++);
+                return examen;
+            }
+
+        });
+
+        // WHEN (ejecucion de prueba)
         var examen = service.guardar(newExamen);
+
+        // THEN (validamos)
         assertNotNull(examen.getId());
         assertEquals(8L, examen.getId());
         assertEquals("Fisica", examen.getNombre());
