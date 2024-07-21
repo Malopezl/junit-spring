@@ -20,7 +20,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -42,6 +44,10 @@ class ExamenServiceImplTest {
     /* No puede ser la interfaz, por eso se utiliza la clase */
     @InjectMocks
     ExamenServiceImpl service;
+
+    /* Se puede implementar un captor de esta forma en vez de hacerlo sobre la funcion */
+    @Captor
+    ArgumentCaptor<Long> captor;
 
     /*
      * Se necesita habilitar el uso de las anotaciones para esta clase
@@ -199,5 +205,17 @@ class ExamenServiceImplTest {
                     + argument + " debe ser un entero positivo";
         }
 
+    }
+
+    @Test
+    void testArgumentCaptor() {
+        when(repository.findAll()).thenReturn(Datos.EXAMENES);
+        // when(preguntaRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        service.findExamenPorNombreConPreguntas("Matematicas");
+
+        // ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
+        verify(preguntaRepository).findPreguntasPorExamenId(captor.capture());
+
+        assertEquals(5L, captor.getValue());
     }
 }
