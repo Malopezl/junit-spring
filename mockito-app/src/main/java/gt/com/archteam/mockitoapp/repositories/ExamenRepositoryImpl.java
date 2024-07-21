@@ -10,7 +10,11 @@ public class ExamenRepositoryImpl implements ExamenRepository {
     @Override
     public List<Examen> findAll() {
         return Collections.emptyList();
-        // return Arrays.asList(new Examen(5L, "Matematicas"), new Examen(6L, "Lenguaje"), new Examen(7L, "Historia"));
+    }
+
+    @Override
+    public Examen guardar(Examen examen) {
+        return new Examen(null, null);
     }
 
 }

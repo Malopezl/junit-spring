@@ -2,8 +2,11 @@ package gt.com.archteam.mockitoapp.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,5 +93,20 @@ class ExamenServiceImplTest {
         assertNull(examen);
         verify(repository).findAll();
         verify(preguntaRepository).findPreguntasPorExamenId(anyLong());
+    }
+
+    @Test
+    void testGuardarExamen() {
+        Examen newExamen = Datos.EXAMEN;
+        newExamen.setPreguntas(Datos.PREGUNTAS);
+
+        when(repository.guardar(any(Examen.class))).thenReturn(Datos.EXAMEN);
+        var examen = service.guardar(newExamen);
+        assertNotNull(examen.getId());
+        assertEquals(8L, examen.getId());
+        assertEquals("Fisica", examen.getNombre());
+
+        verify(repository).guardar(any(Examen.class));
+        verify(preguntaRepository).guardarVarias(anyList());
     }
 }
