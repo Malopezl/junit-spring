@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,16 +33,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import gt.com.archteam.mockitoapp.models.Examen;
-import gt.com.archteam.mockitoapp.repositories.ExamenRepository;
-import gt.com.archteam.mockitoapp.repositories.PreguntaRepository;
+import gt.com.archteam.mockitoapp.repositories.ExamenRepositoryImpl;
+import gt.com.archteam.mockitoapp.repositories.PreguntaRepositoryImpl;
 
 /* FORMA 2: usando esta anotacion */
 @ExtendWith(MockitoExtension.class)
 class ExamenServiceImplTest {
     @Mock
-    PreguntaRepository preguntaRepository;
+    PreguntaRepositoryImpl preguntaRepository;
     @Mock
-    ExamenRepository repository;
+    ExamenRepositoryImpl repository;
 
     /* No puede ser la interfaz, por eso se utiliza la clase */
     @InjectMocks
@@ -283,5 +284,20 @@ class ExamenServiceImplTest {
 
         verify(repository).guardar(any(Examen.class));
         verify(preguntaRepository).guardarVarias(anyList());
+    }
+
+    @Test
+    void testDoCallRealMethod() {
+        when(repository.findAll()).thenReturn(Datos.EXAMENES);
+        // when(preguntaRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        /*
+         * Para poder ejecutar este metodo es necesario tener las implementaciones de
+         * las clases y no sus interfaces
+         */
+        doCallRealMethod().when(preguntaRepository).findPreguntasPorExamenId(anyLong());
+
+        Examen examen = service.findExamenPorNombreConPreguntas("Matematicas");
+        assertEquals(5L, examen.getId());
+        assertEquals("Matematicas", examen.getNombre());
     }
 }
