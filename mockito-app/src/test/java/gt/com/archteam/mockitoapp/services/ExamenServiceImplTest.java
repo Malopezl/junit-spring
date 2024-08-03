@@ -11,6 +11,8 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +47,10 @@ class ExamenServiceImplTest {
     @InjectMocks
     ExamenServiceImpl service;
 
-    /* Se puede implementar un captor de esta forma en vez de hacerlo sobre la funcion */
+    /*
+     * Se puede implementar un captor de esta forma en vez de hacerlo sobre la
+     * funcion
+     */
     @Captor
     ArgumentCaptor<Long> captor;
 
@@ -217,5 +222,66 @@ class ExamenServiceImplTest {
         verify(preguntaRepository).findPreguntasPorExamenId(captor.capture());
 
         assertEquals(5L, captor.getValue());
+    }
+
+    @Test
+    void testDoThrow() {
+        var examen = Datos.EXAMEN;
+        examen.setPreguntas(Datos.PREGUNTAS);
+        doThrow(IllegalArgumentException.class).when(preguntaRepository).guardarVarias(anyList());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.guardar(examen);
+        });
+    }
+
+    @Test
+    void testDoAnswer() {
+        when(repository.findAll()).thenReturn(Datos.EXAMENES);
+        // when(preguntaRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+
+        doAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+            return id == 5L ? Datos.PREGUNTAS : Collections.emptyList();
+        }).when(preguntaRepository).findPreguntasPorExamenId(anyLong());
+
+        var examen = service.findExamenPorNombreConPreguntas("Matematicas");
+        assertTrue(examen.getPreguntas().contains("geometria"));
+        assertEquals(5, examen.getPreguntas().size());
+        assertEquals(5L, examen.getId());
+        assertEquals("Matematicas", examen.getNombre());
+
+        verify(preguntaRepository).findPreguntasPorExamenId(anyLong());
+    }
+
+    @Test
+    void testDoAnswerGuardarExamen() {
+        // GIVEN (precondiciones de prueba)
+        Examen newExamen = Datos.EXAMEN;
+        newExamen.setPreguntas(Datos.PREGUNTAS);
+
+        doAnswer(new Answer<Examen>() {
+
+            Long secuencia = 8L;
+
+            @Override
+            public Examen answer(InvocationOnMock invocation) throws Throwable {
+                Examen examen = invocation.getArgument(0);
+                examen.setId(secuencia++);
+                return examen;
+            }
+
+        }).when(repository).guardar(any(Examen.class));
+
+        // WHEN (ejecucion de prueba)
+        var examen = service.guardar(newExamen);
+
+        // THEN (validamos)
+        assertNotNull(examen.getId());
+        assertEquals(8L, examen.getId());
+        assertEquals("Fisica", examen.getNombre());
+
+        verify(repository).guardar(any(Examen.class));
+        verify(preguntaRepository).guardarVarias(anyList());
     }
 }
