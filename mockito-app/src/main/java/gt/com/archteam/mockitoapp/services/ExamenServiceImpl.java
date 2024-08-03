@@ -24,6 +24,7 @@ public class ExamenServiceImpl implements ExamenService {
     public Examen findExamenPorNombreConPreguntas(String nombre) {
         Examen examen = findExamenPorNombre(nombre).orElseThrow();
         var preguntas = preguntaRepository.findPreguntasPorExamenId(examen.getId());
+        preguntaRepository.findPreguntasPorExamenId(examen.getId());
         examen.setPreguntas(preguntas);
         return examen;
     }
