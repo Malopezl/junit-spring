@@ -1,8 +1,11 @@
 package gt.com.archteam.mockito.course;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -63,6 +66,9 @@ class MockitoCourseApplicationTests {
 
 		verify(bancoRepository, times(2)).findById(1L);
 		verify(bancoRepository).update(any(Banco.class));
+
+		verify(cuentaRepository, times(6)).findById(anyLong());
+		verify(cuentaRepository, never()).findAll();
 	}
 
 	@Test
@@ -92,6 +98,23 @@ class MockitoCourseApplicationTests {
 
 		verify(bancoRepository, times(1)).findById(1L);
 		verify(bancoRepository, never()).update(any(Banco.class));
+
+		verify(cuentaRepository, times(5)).findById(anyLong());
+		verify(cuentaRepository, never()).findAll();
 	}
 
+	@Test
+	void contextLoads3() {
+		when(cuentaRepository.findById(1L)).thenReturn(Datos.crearCuenta001());
+
+		var cuenta1 = service.findById(1L);
+		var cuenta2 = service.findById(1L);
+
+		assertSame(cuenta1, cuenta2);
+		assertTrue(cuenta1 == cuenta2);
+		assertEquals("Andres", cuenta1.getPersona());
+		assertEquals("Andres", cuenta2.getPersona());
+
+		verify(cuentaRepository, times(2)).findById(1L);
+	}
 }
