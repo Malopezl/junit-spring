@@ -2,10 +2,13 @@ package gt.com.archteam.mockito.course.services;
 
 import java.math.BigDecimal;
 
+import org.springframework.stereotype.Service;
+
 import gt.com.archteam.mockito.course.models.Cuenta;
 import gt.com.archteam.mockito.course.repositories.BancoRepository;
 import gt.com.archteam.mockito.course.repositories.CuentaRepository;
 
+@Service
 public class CuentaServiceImpl implements CuentaService {
     private CuentaRepository cuentaRepository;
     private BancoRepository bancoRepository;

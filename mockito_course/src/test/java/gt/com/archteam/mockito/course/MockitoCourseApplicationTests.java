@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,7 +15,9 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import gt.com.archteam.mockito.course.exceptions.DineroInsuficienteException;
 import gt.com.archteam.mockito.course.models.Banco;
@@ -24,19 +25,26 @@ import gt.com.archteam.mockito.course.models.Cuenta;
 import gt.com.archteam.mockito.course.repositories.BancoRepository;
 import gt.com.archteam.mockito.course.repositories.CuentaRepository;
 import gt.com.archteam.mockito.course.services.CuentaService;
-import gt.com.archteam.mockito.course.services.CuentaServiceImpl;
 
 @SpringBootTest
 class MockitoCourseApplicationTests {
+	// @Mock
+	@MockBean
 	CuentaRepository cuentaRepository;
+	// @Mock
+	@MockBean
 	BancoRepository bancoRepository;
+	
+	// @InjectMocks
+	/* Spring si permite utilizar la interfaz en vez de usar la implementacion */
+	@Autowired
 	CuentaService service;
 
 	@BeforeEach
 	void setUp() {
-		cuentaRepository = mock(CuentaRepository.class);
-		bancoRepository = mock(BancoRepository.class);
-		service = new CuentaServiceImpl(cuentaRepository, bancoRepository);
+		// cuentaRepository = mock(CuentaRepository.class);
+		// bancoRepository = mock(BancoRepository.class);
+		// service = new CuentaServiceImpl(cuentaRepository, bancoRepository);
 	}
 
 	@Test
