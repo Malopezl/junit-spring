@@ -3,12 +3,25 @@ package gt.com.archteam.mockito.course.models;
 import java.math.BigDecimal;
 
 import gt.com.archteam.mockito.course.exceptions.DineroInsuficienteException;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Entity
+@Table(name = "cuentas")
+@NoArgsConstructor
 public class Cuenta {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String persona;
+
     private BigDecimal saldo;
 
     public Cuenta(Long id, String persona, BigDecimal saldo) {
