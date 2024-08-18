@@ -2,6 +2,7 @@ package gt.com.archteam.mockito.course.controllers;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,24 @@ public class CuentaController {
     @Autowired
     private CuentaService cuentaService;
 
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<Cuenta> listar() {
+        return cuentaService.findAll();
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Cuenta detalle(@PathVariable Long id) {
         return cuentaService.findById(id);
     }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Cuenta guardar(@RequestBody Cuenta cuenta) {
+        return cuentaService.save(cuenta);
+    }
+    
 
     @PostMapping("/transferir")
     public ResponseEntity<Map<String, Object>> transferir(@RequestBody TransaccionDto transaccion) {

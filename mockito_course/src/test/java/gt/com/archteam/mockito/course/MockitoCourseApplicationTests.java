@@ -1,6 +1,7 @@
 package gt.com.archteam.mockito.course;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -124,5 +126,43 @@ class MockitoCourseApplicationTests {
 		assertEquals("Andres", cuenta2.getPersona());
 
 		verify(cuentaRepository, times(2)).findById(1L);
+	}
+
+	@Test
+	void testFindAll() {
+		// Given
+		var datos = Arrays.asList(Datos.crearCuenta001().orElseThrow(), Datos.crearCuenta002().orElseThrow());
+		when(cuentaRepository.findAll()).thenReturn(datos);
+
+		// When
+		var cuentas = service.findAll();
+
+		// Then
+		assertFalse(cuentas.isEmpty());
+		assertEquals(2, cuentas.size());
+		assertTrue(cuentas.contains(Datos.crearCuenta002().orElseThrow()));
+
+		verify(cuentaRepository).findAll();
+	}
+
+	@Test
+	void testSave() {
+		// Given
+		var cuentaNueva = new Cuenta(null, "Pepe", new BigDecimal("3000"));
+		when(cuentaRepository.save(any())).then(invocation -> {
+			Cuenta c = invocation.getArgument(0);
+			c.setId(3L);
+			return c;
+		});
+
+		// When
+		var cuenta = service.save(cuentaNueva);
+		
+		// Then
+		assertEquals("Pepe", cuenta.getPersona());
+		assertEquals(3, cuenta.getId());
+		assertEquals("3000", cuenta.getSaldo().toPlainString());
+
+		verify(cuentaRepository).save(any());
 	}
 }
