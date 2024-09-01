@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MockitoCourseApplication<mockito_course>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "gt.com.archteam.mockito.course.MockitoCourseApplication",
+            "projectName": "mockito_course",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
