@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import gt.com.archteam.mockito.course.models.Cuenta;
 import gt.com.archteam.mockito.course.repositories.CuentaRepository;
 
+@Tag("integracion_jpa")
 @DataJpaTest
 class IntegracionJpaTest {
     @Autowired

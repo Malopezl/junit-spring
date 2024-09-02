@@ -3,7 +3,7 @@
         "testKind": "junit",
         "filters": {
             "tags": [
-                // "param"
+                "!integracion_wct"
             ]
         }
     }
