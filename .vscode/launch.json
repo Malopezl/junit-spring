@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "gt.com.archteam.junitapp.Main",
+            "projectName": "junit5_app"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "gt.com.archteam.mockitoapp.App",
+            "projectName": "mockito-app"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MockitoCourseApplication<mockito_course>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "gt.com.archteam.mockito.course.MockitoCourseApplication",
+            "projectName": "mockito_course",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

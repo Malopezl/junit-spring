@@ -1,0 +1,10 @@
+{
+    "java.test.config": {
+        "testKind": "junit",
+        "filters": {
+            "tags": [
+                "!integracion_wct"
+            ]
+        }
+    }
+}
